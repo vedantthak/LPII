@@ -1,0 +1,315 @@
+Here is a line-by-line explanation of your MD5 message digest Java program, followed by short viva questions and answers:
+
+🔍 Line-by-Line Explanation
+Imports
+java
+Copy
+Edit
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Scanner;
+ByteBuffer and ByteOrder: Used to handle byte-level manipulations and ensure little-endian order (required by MD5).
+
+Scanner: Reads input from the user.
+
+Class Declaration
+java
+Copy
+Edit
+public class Assign6 {
+Defines the main class.
+
+MD5 Constants and Setup
+java
+Copy
+Edit
+private static final int[] rotateAmounts = { ... };
+Contains predefined shift values used in each MD5 round.
+
+java
+Copy
+Edit
+private static final int[] constants = new int[64];
+Stores 64 constants calculated from the sine function (as per the MD5 standard).
+
+java
+Copy
+Edit
+private static final int[] initValues = {
+    0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
+};
+Initial hash values (A, B, C, D) in hexadecimal.
+
+Static Block
+java
+Copy
+Edit
+static {
+    for (int i = 0; i < 64; i++) {
+        constants[i] = (int) ((long) (Math.abs(Math.sin(i + 1)) * (1L << 32)) & 0xFFFFFFFFL);
+    }
+}
+Computes 64 constant values using the sine function and stores them.
+
+Left Rotate Function
+java
+Copy
+Edit
+private static int leftRotate(int x, int amount) {
+    return (x << amount) | (x >>> (32 - amount));
+}
+Performs circular left shift (rotation) on 32-bit integers.
+
+MD5 Core Function
+java
+Copy
+Edit
+public static byte[] md5(byte[] message)
+This method implements the actual MD5 algorithm:
+
+Padding:
+
+java
+Copy
+Edit
+int newLength = ((originalLength + 8) / 64 + 1) * 64;
+Pads the message so its length becomes a multiple of 512 bits.
+
+Appending Length:
+
+java
+Copy
+Edit
+paddedMessage[newLength - 8 + i] = (byte) (originalLengthBits >>> (8 * i));
+Appends original message length (in bits) at the end of the padded message.
+
+Chunk Processing:
+
+java
+Copy
+Edit
+for (int chunkOffset = 0; chunkOffset < newLength; chunkOffset += 64)
+Processes message in 512-bit (64-byte) blocks.
+
+Dividing into Words:
+
+java
+Copy
+Edit
+words[i] = ByteBuffer.wrap(...).order(ByteOrder.LITTLE_ENDIAN).getInt();
+Breaks each 512-bit chunk into 16 32-bit words.
+
+Main Compression Loop:
+
+java
+Copy
+Edit
+for (int i = 0; i < 64; i++) { ... }
+Runs 64 operations using non-linear functions and bitwise math.
+
+Updating Hash:
+
+java
+Copy
+Edit
+hashPieces[0] = (hashPieces[0] + a) & 0xFFFFFFFF;
+Updates A, B, C, D values after each chunk.
+
+Final Digest Conversion
+java
+Copy
+Edit
+ByteBuffer buffer = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
+Converts A, B, C, D into a final 128-bit (16-byte) digest.
+
+Convert to Hex
+java
+Copy
+Edit
+public static String md5ToHex(byte[] digest)
+Converts byte array to hexadecimal string for display.
+
+Main Method
+java
+Copy
+Edit
+public static void main(String[] args)
+Takes user input, calls md5() and md5ToHex(), and prints the hash.
+
+📚 Viva Questions (Short & Precise)
+Question	Answer
+What is MD5?	MD5 (Message Digest 5) is a cryptographic hash function that outputs a 128-bit hash value.
+What is the purpose of padding in MD5?	To ensure the message length becomes a multiple of 512 bits.
+What are the initial values in MD5?	A=0x67452301, B=0xefcdab89, C=0x98badcfe, D=0x10325476
+How many rounds does MD5 perform?	64 rounds.
+What is the output size of MD5?	128 bits or 16 bytes.
+Is MD5 still secure?	No, it is broken and not recommended for security use.
+Why is ByteOrder.LITTLE_ENDIAN used?	MD5 processes data in little-endian format.
+What are the main operations used in MD5?	Bitwise AND, OR, NOT, XOR, modular addition, and left rotation.
+Why is the sine function used in MD5?	To generate 64 constant values with high entropy.
+What does the leftRotate() function do?	It performs a circular left shift of bits.
+
+
+🔐 Purpose of MD5
+Verify data integrity
+
+Used in checksums, digital signatures, password hashing (legacy)
+
+Not secure for cryptographic purposes today (vulnerable to collisions)
+
+🧠 High-Level Steps in MD5 Algorithm
+Let's break it down step by step.
+
+🔹 1. Input Padding
+The message is padded so its length (in bits) is congruent to 448 mod 512 (i.e., 64 bits short of a multiple of 512):
+
+Append a single bit 1 (written as 0x80 in hex or 10000000 in binary)
+
+Add 0 bits until message length = 448 mod 512
+
+Append the original length of the message (in bits) as a 64-bit little-endian integer
+
+🔸 Example:
+If your input is Helloworld (80 bits), it gets padded to 512 bits.
+
+🔹 2. Initialize MD Buffer
+MD5 uses four 32-bit variables (A, B, C, D):
+
+plaintext
+Copy
+Edit
+A = 0x67452301  
+B = 0xefcdab89  
+C = 0x98badcfe  
+D = 0x10325476
+🔹 3. Divide Message into 512-bit Blocks
+Each padded message is split into 512-bit (64-byte) blocks. Each block is then split into sixteen 32-bit little-endian words:
+M[0] ... M[15]
+
+🔹 4. Processing Each Block (Main Loop)
+For each 512-bit block:
+
+64 operations are performed using:
+4 nonlinear functions:
+
+java
+Copy
+Edit
+F(X,Y,Z) = (X & Y) | (~X & Z)   [Rounds 1-16]
+G(X,Y,Z) = (X & Z) | (Y & ~Z)   [Rounds 17-32]
+H(X,Y,Z) = X ^ Y ^ Z            [Rounds 33-48]
+I(X,Y,Z) = Y ^ (X | ~Z)         [Rounds 49-64]
+Each round uses:
+
+A constant K[i] derived from the sine function:
+K[i] = floor(abs(sin(i+1)) × 2^32)
+
+A shift amount s[i] (predefined)
+
+A word M[g] selected from the block based on the round
+
+Generic operation:
+ini
+Copy
+Edit
+a = b + ((a + F(b,c,d) + M[g] + K[i]) <<< s)
+Here:
+
+<<< is left-rotate (circular shift)
+
+(a,b,c,d) are updated in a rotating fashion
+
+All additions are modulo 2³²
+
+🔹 5. Add This Block’s Hash to Result
+After all 64 operations, the output (a, b, c, d) is added to the original (A, B, C, D):
+
+ini
+Copy
+Edit
+A = A + a
+B = B + b
+C = C + c
+D = D + d
+🔹 6. Final Hash Value
+Concatenate A, B, C, D in little-endian format to form a 128-bit digest.
+
+🔸 Final result: 16 bytes → Represented as 32-character hex string.
+
+
+Let's break down the MD5 hash calculation for the input "Helloworld" and understand the output a165968b0a8084a041aed89bf40d581f step-by-step.
+
+🔐 What is MD5?
+MD5 (Message Digest Algorithm 5) is a cryptographic hash function that:
+
+Takes any length input,
+
+Produces a fixed 128-bit (16-byte) hash,
+
+Output is usually shown as 32 hexadecimal characters (each hex digit = 4 bits).
+
+It is not reversible, meaning you cannot get the original text back from the hash.
+
+🧪 Input:
+nginx
+Copy
+Edit
+Helloworld
+🧮 What happens internally?
+1. Convert input to bytes
+Java internally converts the string "Helloworld" to its ASCII bytes:
+
+Character	ASCII	Hex
+H	72	48
+e	101	65
+l	108	6C
+l	108	6C
+o	111	6F
+w	119	77
+o	111	6F
+r	114	72
+l	108	6C
+d	100	64
+
+So the byte stream is:
+48 65 6C 6C 6F 77 6F 72 6C 64
+
+2. Padding
+MD5 works on 512-bit (64-byte) blocks, so it:
+
+Appends a 1 bit (0x80), then enough 0 bits.
+
+Appends 64-bit representation of original length (in bits).
+
+For "Helloworld" (10 characters = 80 bits), padding makes it 64 bytes.
+
+3. Process the Block
+Initializes 4 buffer variables (A, B, C, D).
+
+Applies 64 rounds using nonlinear functions (F, G, H, I), constants, and left rotation.
+
+These steps are done using bitwise operations.
+
+4. Generate Final Digest
+The result is a 128-bit hash, usually shown in hex form.
+
+The final result for "Helloworld":
+
+nginx
+Copy
+Edit
+a165968b0a8084a041aed89bf40d581f
+📦 MD5 Output Format:
+128 bits → 16 bytes → 32 hex characters
+
+Your output broken into 4 parts:
+
+a165968b
+
+0a8084a0
+
+41aed89b
+
+f40d581f
+
+Each of these comes from combining the transformed values of A, B, C, and D after processing.

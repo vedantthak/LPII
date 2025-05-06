@@ -1,0 +1,22 @@
+import java.security.MessageDigest;
+import java.util.Scanner;
+
+public class MD5Check {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter text: ");
+        String input = scanner.nextLine();
+        scanner.close();
+
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(input.getBytes());
+        byte[] digest = md.digest();
+
+        StringBuilder hex = new StringBuilder();
+        for (byte b : digest) {
+            hex.append(String.format("%02x", b));
+        }
+
+        System.out.println("MD5: " + hex.toString());
+    }
+}

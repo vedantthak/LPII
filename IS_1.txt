@@ -1,0 +1,270 @@
+**Python Program Explanation: AND & XOR with ASCII Characters**
+
+---
+
+### Code Overview
+
+This Python program performs bitwise **AND** and **XOR** operations between each character of a user-provided string and the value `127`. It does so **without using built-in operators `ord()`, `&`, or `^`**, relying instead on custom logic for ASCII conversion and bitwise operations.
+
+---
+
+### Line-by-Line Explanation
+
+```python
+def to_ascii_value(char):
+```
+
+* Defines a function to convert a character into its ASCII value **without using `ord()`**.
+
+```python
+    ascii_map = {
+        ' ': 32, '!': 33, ... '~': 126
+    }
+    return ascii_map.get(char, 0)
+```
+
+* A manually created ASCII mapping for common characters.
+* Returns the ASCII value of the input character or 0 if not found.
+
+```python
+def custom_and(a, b):
+```
+
+* A function to perform **bitwise AND** manually.
+
+```python
+    result = 0
+    bit_position = 1
+```
+
+* Initializes result and sets the bit position (starting from least significant bit).
+
+```python
+    while a > 0 or b > 0:
+```
+
+* Loops while either number has bits left.
+
+```python
+        a_bit = a % 2
+        b_bit = b % 2
+```
+
+* Extracts the last bit of `a` and `b`.
+
+```python
+        if a_bit == 1 and b_bit == 1:
+            result += bit_position
+```
+
+* If both bits are 1, the corresponding result bit is set.
+
+```python
+        bit_position *= 2
+        a = a // 2
+        b = b // 2
+```
+
+* Moves to the next bit by updating bit position and right-shifting the inputs.
+
+```python
+    return result
+```
+
+* Returns the result of manual AND operation.
+
+```python
+def custom_xor(a, b):
+```
+
+* Same logic as `custom_and` but for **bitwise XOR**.
+
+```python
+        if (a_bit == 1 and b_bit == 0) or (a_bit == 0 and b_bit == 1):
+            result += bit_position
+```
+
+* Sets the result bit only when the bits differ.
+
+```python
+def and_xor_string(input_string):
+```
+
+* Function that processes the input string character-by-character.
+
+```python
+    print("Original String:", input_string)
+    print("\nResults:")
+    print(f"{'Character':<10} {'ASCII':<10} {'AND 127':<10} {'XOR 127':<10}")
+    print("-" * 40)
+```
+
+* Displays headers for the output table.
+
+```python
+    for char in input_string:
+        ascii_value = to_ascii_value(char)
+        and_result = custom_and(ascii_value, 127)
+        xor_result = custom_xor(ascii_value, 127)
+        print(f"{char:<10} {ascii_value:<10} {and_result:<10} {xor_result:<10}")
+```
+
+* For each character, gets ASCII value and computes AND & XOR with 127.
+* Prints results in a formatted table.
+
+```python
+print("String AND and XOR Operations Program")
+print("------------------------------------")
+input_string = input("Enter the String: ")
+and_xor_string(input_string)
+```
+
+* Driver code: Prompts user input and calls the processing function.
+
+---
+
+### Sample Output
+
+```
+String AND and XOR Operations Program
+------------------------------------
+Enter the String: Hello
+Original String: Hello
+
+Results:
+Character  ASCII      AND 127    XOR 127   
+----------------------------------------
+H          72         72         55        
+e          101        101        26        
+l          108        108        19        
+l          108        108        19        
+o          111        111        16        
+```
+
+---
+
+### Summary
+
+* ASCII values are fetched manually.
+* Bitwise operations are done without using native operators.
+* Very useful for understanding how low-level operations work under the hood.
+
+
+
+
+
+
+
+#Output
+
+Here are the steps for calculating the output of the program, explained in a detailed manner:
+
+1. Input the String
+The user is prompted to input a string. For example, "Hello" is entered.
+
+2. Convert Each Character to ASCII
+Each character in the string is converted to its corresponding ASCII value using the to_ascii_value(char) function.
+
+For "Hello", the ASCII values are:
+
+H → 72
+
+e → 101
+
+l → 108
+
+l → 108
+
+o → 111
+
+3. Perform AND and XOR Operations
+For each character's ASCII value, two operations are performed: AND and XOR with the value 127 (binary: 01111111).
+
+AND Operation (&)
+Description: The AND operation compares the bits of two numbers. The result is 1 only if both corresponding bits are 1.
+
+Example:
+
+For H (ASCII value 72) and 127:
+
+72 in binary: 01001000
+
+127 in binary: 01111111
+
+Result of AND: 01001000 → Decimal 72
+
+This operation is repeated for each character:
+
+H → 72
+
+e → 101
+
+l → 108
+
+l → 108
+
+o → 111
+
+XOR Operation (^)
+Description: The XOR operation compares the bits of two numbers. The result is 1 if the bits are different, and 0 if the bits are the same.
+
+Example:
+
+For H (ASCII value 72) and 127:
+
+72 in binary: 01001000
+
+127 in binary: 01111111
+
+Result of XOR: 00110111 → Decimal 55
+
+This operation is repeated for each character:
+
+H → 55
+
+e → 26
+
+l → 19
+
+l → 19
+
+o → 16
+
+4. Print the Results
+The program displays the results in a formatted table:
+
+Character: The character from the string.
+
+ASCII: The ASCII value of the character.
+
+AND 127: The result of the AND operation with 127.
+
+XOR 127: The result of the XOR operation with 127.
+
+For the input "Hello", the output table looks like this:
+
+markdown
+Copy
+Edit
+String AND and XOR Operations Program
+------------------------------------
+Enter the String: Hello
+Original String: Hello
+
+Results:
+Character  ASCII      AND 127    XOR 127   
+----------------------------------------
+H          72         72         55        
+e          101        101        26        
+l          108        108        19        
+l          108        108        19        
+o          111        111        16        
+5. End of Program
+After displaying the table, the program ends.
+
+Summary of Key Steps:
+Convert each character to its ASCII value.
+
+Perform AND and XOR operations with 127 for each character's ASCII value.
+
+Display the results in a formatted table.

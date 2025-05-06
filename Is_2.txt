@@ -1,0 +1,257 @@
+Explanation of Key Parts:
+Key-based Ordering: The key is used to decide the column order in both encryption and decryption. For encryption, the key determines how the columns are shuffled; for decryption, it decides the order in which to reconstruct the original message.
+
+Padding: The message is padded with _ if the number of characters does not perfectly fit the matrix. This ensures that all rows are fully populated.
+
+Matrix Construction: The message is split into rows and columns, and the characters are rearranged based on the key.
+
+Viva Questions:
+What is Transposition Cipher?
+
+The Transposition Cipher is a method of encryption where the positions of the characters in the plaintext are shifted according to a regular system to form the ciphertext.
+
+How does this algorithm work?
+
+This algorithm works by rearranging the characters of the message according to the key. The key is used to create a columnar structure, and then the message is read column by column to produce the ciphertext.
+
+Why is space replaced with # and padding done with _?
+
+Spaces are replaced with # to avoid confusion with the padding character _ and to handle spaces properly in the matrix. Padding is used to ensure that the matrix has a perfect fit, making it easy to perform the columnar transposition.
+
+How is the key used in this algorithm?
+
+The key is used to determine the order of the columns in the matrix. The characters in the key are sorted, and their indices are used to read the columns of the matrix in the correct order during encryption and decryption.
+
+What happens if the message length is not divisible by the column count?
+
+If the message length is not divisible by the column count, the message is padded with the _ character to make the total number of characters a multiple of the column count.
+
+What is the time complexity of the encryption/decryption process?
+
+The time complexity of the encryption and decryption process is O(n log n) due to the sorting step (sorting the key) and the subsequent linear iteration over the message characters to fill the matrix and construct the result.
+
+How can this encryption be made more secure?
+
+You can increase the security of the Transposition Cipher by using longer keys and by combining it with other cryptographic techniques such as substitution ciphers or hashing.
+
+What is the main difference between substitution and transposition ciphers?
+
+In a substitution cipher, each character in the plaintext is replaced by another character. In a transposition cipher, the characters are rearranged (but not substituted) according to a certain system or key.
+
+
+
+EXpalin
+
+Code Explanation
+python
+Copy
+Edit
+import math
+Importing math module: This is needed for the ceil function, which is used to calculate the number of rows required for the grid during encryption and decryption.
+
+encryptMessage function:
+python
+Copy
+Edit
+def encryptMessage(msg, key):
+    cipher = ""  # Initialize an empty string for the cipher text
+    msg = msg.replace(" ", "#")  # Replacing spaces with "#" for easier handling
+Replace spaces: Spaces in the message are replaced by # to ensure they are handled consistently during encryption.
+
+python
+Copy
+Edit
+    msg_len = len(msg)  # Get the length of the message
+    msg_lst = list(msg)  # Convert message into a list of characters
+    key_lst = sorted(list(key))  # Sort the key to determine the column order
+    col = len(key)  # The number of columns in the grid will be equal to the length of the key
+    row = int(math.ceil(msg_len / col))  # Calculate number of rows required for the grid
+    fill_null = int((row * col) - msg_len)  # Calculate how many padding characters are needed
+    msg_lst.extend('_' * fill_null)  # Add padding characters ("_") to the message
+Message Length: The length of the message is calculated.
+
+Message List: Convert the message into a list of characters.
+
+Key Sorting: The key is sorted alphabetically, which determines the column order for encryption.
+
+Rows and Columns Calculation: The number of rows (row) and columns (col) for the grid are determined. Padding characters (_) are added to the message if necessary.
+
+python
+Copy
+Edit
+    matrix = [msg_lst[i: i + col] for i in range(0, len(msg_lst), col)]  # Create the matrix
+Matrix Creation: The message is split into a matrix (2D list) based on the number of columns (col).
+
+python
+Copy
+Edit
+    key_order = sorted(range(len(key)), key=lambda x: key[x])  # Sorting key indices to determine the order
+Key Order: Sort the indices of the key to determine the column order for reading during encryption.
+
+python
+Copy
+Edit
+    for i in range(col):
+        curr_idx = key_order[i]  # Get column order from the sorted key
+        cipher += ''.join([row[curr_idx] for row in matrix])  # Add the characters column-wise
+    return cipher
+Column-wise Reading: The columns of the matrix are read in the order determined by the sorted key, and characters are added to form the cipher text.
+
+decryptMessage function:
+python
+Copy
+Edit
+def decryptMessage(cipher, key):
+    msg = ""  # Initialize an empty string for the decrypted message
+    msg_indx = 0  # Index to track the position in the cipher text
+    msg_len = len(cipher)  # Length of the cipher text
+    col = len(key)  # Number of columns is equal to the length of the key
+    row = int(math.ceil(msg_len / col))  # Calculate number of rows required for the grid
+    key_lst = sorted(list(key))  # Sort the key to determine the column order
+Decryption Setup: Similar to the encryption process, the length of the cipher text is calculated, and the number of rows and columns are determined.
+
+python
+Copy
+Edit
+    dec_cipher = [[None] * col for _ in range(row)]  # Initialize empty matrix for decryption
+Decryption Matrix: Initialize an empty matrix where characters will be placed during decryption.
+
+python
+Copy
+Edit
+    key_order = sorted(range(len(key)), key=lambda x: key[x])  # Sorting key indices
+Key Sorting: Sort the key again to determine the correct column order for placing characters.
+
+python
+Copy
+Edit
+    for k in range(col):
+        curr_idx = key_order[k]  # Get column order from the sorted key
+        for j in range(row):
+            dec_cipher[j][curr_idx] = cipher[msg_indx]  # Place cipher characters into the matrix
+            msg_indx += 1
+Column-wise Insertion: The cipher text is placed into the matrix column by column, following the order of the sorted key.
+
+python
+Copy
+Edit
+    msg = ''.join(sum(dec_cipher, []))  # Flatten the matrix to get the decrypted message
+    msg = msg.replace("_", "")  # Remove padding characters
+    msg = msg.replace("#", " ")  # Replace "#" back to space
+    return msg
+Flattening the Matrix: The matrix is flattened to get a single string representing the decrypted message.
+
+Removing Padding: Padding characters (_) and # (which were initially spaces) are replaced back to their original values.
+
+Main driver:
+python
+Copy
+Edit
+msg = input("Enter the Plain Text: ")  # Input plain text
+key = input("Enter the Key: ")  # Input key for encryption
+Input: The user inputs the plain text and the key to be used for encryption.
+
+python
+Copy
+Edit
+cipher = encryptMessage(msg, key)  # Encrypt the message
+print("Encrypted Message:", cipher)  # Print the encrypted message
+Encryption: The encryptMessage function is called to encrypt the plain text.
+
+python
+Copy
+Edit
+decrypted_msg = decryptMessage(cipher, key)  # Decrypt the cipher text
+print("Decrypted Message:", decrypted_msg)  # Print the decrypted message
+Decryption: The decryptMessage function is called to decrypt the cipher text and print the result.
+
+from pathlib import Path
+
+# Content to be written to the txt file
+content = """
+--- Transposition Cipher: Step-by-Step Explanation ---
+
+Input:
+Plain Text: Hello World
+Key: hey
+
+--------------------------------------------------
+1. Preprocessing Message:
+   - Replace spaces with "#": "Hello#World"
+   - Length of message: 11
+   - Key length (number of columns): 3
+   - Number of rows = ceil(11 / 3) = 4
+   - Padding needed = 4 * 3 - 11 = 1 -> Add "_"
+   - Final message: "Hello#World_"
+
+2. Create Grid:
+   Message arranged in 3 columns and 4 rows:
+   H  e  l
+   l  o  #
+   W  o  r
+   l  d  _
+
+3. Determine Column Order from Key:
+   Key = "hey"
+   Sorted key = ['e', 'h', 'y']
+   Column order = [1 (e), 0 (h), 2 (y)]
+
+4. Read Columns by Sorted Order:
+   - Column 1 (Index 1): e, o, o, d -> "eood"
+   - Column 2 (Index 0): H, l, W, l -> "HlWl"
+   - Column 3 (Index 2): l, #, r, _ -> "l#r_"
+
+5. Encrypted Message:
+   Encrypted = "eoodHlWll#r_"
+
+--------------------------------------------------
+Decryption:
+
+1. Create Grid:
+   - Dimensions: 4 rows x 3 columns
+   - Fill columns in order: [1, 0, 2]
+
+2. Fill Grid:
+   Fill column 1 (Index 1) with "eood":
+   - Row 1: _ e _
+   - Row 2: _ o _
+   - Row 3: _ o _
+   - Row 4: _ d _
+
+   Fill column 2 (Index 0) with "HlWl":
+   - Row 1: H e _
+   - Row 2: l o _
+   - Row 3: W o _
+   - Row 4: l d _
+
+   Fill column 3 (Index 2) with "l#r_":
+   - Row 1: H e l
+   - Row 2: l o #
+   - Row 3: W o r
+   - Row 4: l d _
+
+3. Read Row-wise:
+   - Row 1: H e l
+   - Row 2: l o #
+   - Row 3: W o r
+   - Row 4: l d _
+   Combined: "Hello#World_"
+
+4. Post-process:
+   - Replace "#" with space
+   - Remove "_" padding
+
+5. Decrypted Message: "Hello World"
+
+--------------------------------------------------
+Summary:
+Encrypted Message: eoodHlWll#r_
+Decrypted Message: Hello World
+"""
+
+# Write content to file
+output_path = Path("/mnt/data/Transposition_Cipher_Explanation.txt")
+output_path.write_text(content)
+
+output_path.name  # Return the filename for download link display
+
